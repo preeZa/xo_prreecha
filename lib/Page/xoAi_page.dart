@@ -293,11 +293,147 @@ class _XoAiPageState extends State<XoAiPage> {
         oturn = !oturn;
       });
       _checkWinner();
-      if (!gameOver && !oturn) {
+      if (!gameOver && !oturn && scal == 3) {
+        _aiMoveHard();
+      } else if (!gameOver && !oturn) {
         // เรียก AI เพื่อให้ทำการเคลื่อนไหวถัดไป
-        Future.delayed(const Duration(milliseconds: 0), _aiMove);
+        Future.delayed(const Duration(milliseconds: 5), _aiMove);
       }
     }
+  }
+
+  void _aiMoveHard() {
+    displayXO_1Array = [];
+    for (var i = 0; i < scal; i++) {
+      for (var j = 0; j < scal; j++) {
+        if ( displayXO[i][j] == '') {
+          displayXO_1Array.add('');
+        }else{
+          displayXO_1Array.add(displayXO[i][j]);
+        }
+         // ใช้ null-aware operator
+      }
+    }
+
+    int bestMove = _findBestMoveScal3();
+    // ทำการเคลื่อนไหวที่ดีที่สุด
+    _makeMoveScal3(bestMove, 'X'); // เปลี่ยนเป็น 'O' แทน 'X'
+  }
+
+  void _makeMoveScal3(int index, String player) {
+    if (index < 0 || index >= displayXO_1Array.length) {
+      // ตรวจสอบว่าตำแหน่งที่กำหนดถูกต้อง
+      return;
+    }
+
+    if (displayXO_1Array[index] == '') {
+      int row = index ~/ 3; // ใช้การหารเฉลี่ยเพื่อหาตำแหน่งแถว
+      int col = index % 3; // ใช้การหารเพื่อหาตำแหน่งคอลัมน์
+
+      setState(() {
+        displayXO[row][col] = player; // ทำการเคลื่อนไหว
+        filledBoxes++;
+        _checkWinner();
+        oturn = !oturn;
+      });
+    }
+  }
+
+  int _findBestMoveScal3() {
+    int bestMove = -1;
+    int bestValue = -1000;
+    int depth = 3; // ตั้งค่าความลึกที่ต้องการ
+
+    for (int i = 0; i < 9; i++) {
+      if (displayXO_1Array[i] == '') {
+        displayXO_1Array[i] = 'O'; // ทดสอบการเคลื่อนไหว
+
+        // ตรวจสอบการชนะทันที
+        if (_checkWinnerScal3(displayXO_1Array) == 'O') {
+          displayXO_1Array[i] = ''; // คืนสถานะ
+          return i; // หากชนะได้ทันทีให้คืนตำแหน่งนี้
+        }
+
+        // ตรวจสอบการป้องกันการชนะของฝ่ายตรงข้าม
+        displayXO_1Array[i] = 'X';
+        if (_checkWinnerScal3(displayXO_1Array) == 'X') {
+          displayXO_1Array[i] = ''; // คืนสถานะ
+          return i; // หากฝ่ายตรงข้ามชนะได้ในรอบถัดไปให้ป้องกัน
+        }
+        displayXO_1Array[i] = ''; // คืนสถานะ
+
+        // ใช้ Minimax Algorithm ถ้าไม่มีการชนะหรือแพ้ทันที
+        int moveValue = _minimaxScal3(displayXO_1Array, depth, false);
+        if (moveValue > bestValue) {
+          bestMove = i;
+          bestValue = moveValue;
+        }
+      }
+    }
+
+    return bestMove;
+  }
+
+  int _minimaxScal3(List<String> board, int depth, bool isMaximizing) {
+    String winner = _checkWinnerScal3(board);
+    if (winner == 'O') return 10 - depth; // ชนะ
+    if (winner == 'X') return depth - 10; // แพ้
+    if (!_isMovesLeft(board)) return 0; // เสมอ
+
+    if (isMaximizing) {
+      int best = -1000;
+      for (int i = 0; i < 9; i++) {
+        if (board[i] == '') {
+          board[i] = 'O';
+          int moveValue = _minimaxScal3(board, depth - 1, false);
+          board[i] = '';
+          best = max(best, moveValue);
+        }
+      }
+      return best;
+    } else {
+      int best = 1000;
+      for (int i = 0; i < 9; i++) {
+        if (board[i] == '') {
+          board[i] = 'X';
+          int moveValue = _minimaxScal3(board, depth - 1, true);
+          board[i] = '';
+          best = min(best, moveValue);
+        }
+      }
+      return best;
+    }
+  }
+
+  String _checkWinnerScal3(List<String> board) {
+    // ตรวจสอบแถว
+    for (int i = 0; i < 3; i++) {
+      if (board[i * 3] == board[i * 3 + 1] &&
+          board[i * 3 + 1] == board[i * 3 + 2] &&
+          board[i * 3] != '') {
+        return board[i * 3];
+      }
+    }
+    // ตรวจสอบคอลัมน์
+    for (int i = 0; i < 3; i++) {
+      if (board[i] == board[i + 3] &&
+          board[i + 3] == board[i + 6] &&
+          board[i] != '') {
+        return board[i];
+      }
+    }
+    // ตรวจสอบทแยงมุม
+    if (board[0] == board[4] && board[4] == board[8] && board[0] != '') {
+      return board[0];
+    }
+    if (board[2] == board[4] && board[4] == board[6] && board[2] != '') {
+      return board[2];
+    }
+    return '';
+  }
+
+  bool _isMovesLeft(List<String> board) {
+    return board.contains('');
   }
 
   bool _isBoardFull() {
@@ -387,7 +523,6 @@ class _XoAiPageState extends State<XoAiPage> {
       }
     }
 
-
     for (var move in emptyPositions) {
       int score = _evaluateMove(move[0], move[1], 'X');
       if (score > bestScore) {
@@ -399,8 +534,7 @@ class _XoAiPageState extends State<XoAiPage> {
     // ทำการเคลื่อนไหวที่ดีที่สุด
     if (bestMove.isNotEmpty) {
       setState(() {
-        displayXO[bestMove[0]][bestMove[1]] =
-            'X'; 
+        displayXO[bestMove[0]][bestMove[1]] = 'X';
         filledBoxes++;
         oturn = !oturn;
       });
@@ -470,7 +604,7 @@ class _XoAiPageState extends State<XoAiPage> {
   }
 
   void _checkWinner() {
-    winPositions = []; 
+    winPositions = [];
 
     // แถว
     for (int i = 0; i < scal; i++) {
@@ -511,6 +645,7 @@ class _XoAiPageState extends State<XoAiPage> {
 
   void _showWinner(String winner) {
     stopTimer(); // หยุดตัวจับเวลา
+    displayXO_1Array = [];
     for (var i = 0; i < scal; i++) {
       for (var j = 0; j < scal; j++) {
         displayXO_1Array.add(displayXO[i][j]);
@@ -553,6 +688,7 @@ class _XoAiPageState extends State<XoAiPage> {
                   // รีเซ็ตสถานะเกม
                   gameOver = false;
                   winPositions = [];
+                  displayXO_1Array = [];
                   displayXO = List.generate(
                       scal, (i) => List.generate(scal, (j) => ''));
                   filledBoxes = 0;
