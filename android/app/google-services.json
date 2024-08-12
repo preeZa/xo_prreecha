@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "90846755240",
+    "project_id": "xo-preecha",
+    "storage_bucket": "xo-preecha.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90846755240:android:9c9b256b99d0a1c4ddc59d",
+        "android_client_info": {
+          "package_name": "com.example.xo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB67CoFS3S-X7ika4yi5V3o1JwKn2IeoNM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90846755240:android:38f9e6cedd2836ddddc59d",
+        "android_client_info": {
+          "package_name": "com.example.xo_prreecha"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB67CoFS3S-X7ika4yi5V3o1JwKn2IeoNM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
