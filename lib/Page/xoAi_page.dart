@@ -317,12 +317,12 @@ class _XoAiPageState extends State<XoAiPage> {
 
     int bestMove = _findBestMoveScal3();
     // ทำการเคลื่อนไหวที่ดีที่สุด
-    _makeMoveScal3(bestMove, 'X'); // เปลี่ยนเป็น 'O' แทน 'X'
+    _makeMoveScal3(bestMove, 'X'); 
   }
 
   void _makeMoveScal3(int index, String player) {
     if (index < 0 || index >= displayXO_1Array.length) {
-      // ตรวจสอบว่าตำแหน่งที่กำหนดถูกต้อง
+      
       return;
     }
 
